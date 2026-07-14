@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edugen — Dashboard</title>
+  <meta name="description" content="Edugen Dashboard — manage your classrooms, chat with peers, and access tutorials, discussions, and tasks.">
+  <link rel="stylesheet" href="../public/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body data-page="dashboard">
+
+  <!-- HEADER -->
+  <header class="main-header">
+    <div class="header-left">
+      <img src="../public/logo.svg" alt="Edugen" class="header-logo">
+    </div>
+    <nav class="header-nav">
+      <a href="#" class="nav-link active" id="nav-dashboard">Dashboard</a>
+      <a href="/tutorials" class="nav-link" id="nav-tutorials">My Courses</a>
+      <a href="/tasks" class="nav-link" id="nav-tasks">Assignments</a>
+      <a href="/discussions" class="nav-link" id="nav-discussions">Grades</a>
+      <a href="#" class="nav-link" id="nav-schedule">Schedule</a>
+    </nav>
+    <div class="header-right">
+      <button class="header-icon-btn" id="notif-btn" title="Notifications">
+        <span class="notif-dot" id="notif-dot"></span>
+        🔔
+      </button>
+      <div class="classroom-dropdown">
+        <button class="header-btn dropdown-toggle" id="classroom-dropdown-btn">🏫 My Classrooms ▾</button>
+        <div class="dropdown-menu" id="classroom-dropdown-menu">
+          <div class="dropdown-header">Your Classrooms</div>
+          <div id="classroom-list"></div>
+          <div class="dropdown-actions">
+            <button class="dropdown-item create-classroom-btn" id="create-classroom-btn">+ Create</button>
+            <button class="dropdown-item join-classroom-btn" id="join-classroom-btn">🔗 Join</button>
+          </div>
+        </div>
+      </div>
+      <div class="user-profile" id="user-profile">
+        <img src="../public/default-avatar.svg" alt="" class="user-avatar" id="user-avatar">
+        <span class="user-name" id="user-name">Loading…</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN LAYOUT: sidebar | main | messages -->
+  <div class="dashboard-layout">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar-left">
+      <div class="sidebar-section">
+        <h3>🎮 Games</h3>
+        <div class="game-list" id="game-list">
+          <div class="game-item">
+            <div class="game-icon" style="background:#1e3a6e;">M</div>
+            <div class="game-info">
+              <div class="game-title">Math Quest</div>
+              <div class="game-sub">Algebra challenges</div>
+            </div>
+          </div>
+          <div class="game-item">
+            <div class="game-icon" style="background:#1e4a2e;">P</div>
+            <div class="game-info">
+              <div class="game-title">Physics Runner</div>
+              <div class="game-sub">Laws of motion</div>
+            </div>
+          </div>
+          <div class="game-item">
+            <div class="game-icon" style="background:#3e1e3a;">C</div>
+            <div class="game-info">
+              <div class="game-title">Code Clash</div>
+              <div class="game-sub">Python puzzles</div>
+            </div>
+          </div>
+          <div class="game-item">
+            <div class="game-icon" style="background:#3e3a1e;">W</div>
+            <div class="game-info">
+              <div class="game-title">Word Wizards</div>
+              <div class="game-sub">Vocabulary builder</div>
+            </div>
+          </div>
+        </div>
+        <button class="coming-soon-btn" id="games-btn">Notify Me When Live</button>
+      </div>
+
+      <div class="sidebar-section">
+        <h3>🤖 AI Assistant</h3>
+        <div class="ai-assistant-panel">
+          <div class="ai-status"><span class="ai-dot"></span>Online</div>
+          <div class="ai-messages" id="ai-messages">
+            <div class="ai-msg ai">Hi! I'm your learning assistant. Ask me anything about your courses.</div>
+          </div>
+          <div class="ai-input-row">
+            <input type="text" id="ai-input" placeholder="Ask a question…">
+            <button id="ai-send-btn">→</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CENTER CONTENT -->
+    <main class="main-content">
+
+      <!-- Welcome Banner -->
+      <div class="welcome-banner" id="welcome-banner">
+        <div class="welcome-text">
+          <h1>Welcome back, <span id="welcome-name" class="accent-text">there</span>!</h1>
+          <p>Here is your progress for this week.</p>
+        </div>
+        <div class="welcome-actions">
+          <button class="ghost-btn" id="view-schedule-btn">View Schedule</button>
+          <button class="primary-btn" id="new-course-btn">+ New Course</button>
+        </div>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="stats-row" id="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Enrolled Courses</div>
+          <div class="stat-value" id="stat-courses">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Assignments Due</div>
+          <div class="stat-value" id="stat-due">—</div>
+          <div class="stat-sub overdue" id="stat-overdue" style="display:none"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Completed</div>
+          <div class="stat-value" id="stat-completed">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Average Grade</div>
+          <div class="stat-value" id="stat-grade">—</div>
+          <div class="stat-sub grade-badge" id="stat-grade-badge"></div>
+        </div>
+      </div>
+
+      <!-- Class Group Chat -->
+      <div class="section-header">
+        <h2>Class Group Chat</h2>
+        <div class="online-badge"><span class="online-dot"></span><span id="online-count">0</span> online</div>
+        <span class="chat-channel">#general</span>
+      </div>
+
+      <!-- No classroom state -->
+      <div id="no-classroom-state" class="empty-state">
+        <div class="empty-state-icon">🏫</div>
+        <h2>No classroom selected</h2>
+        <p>Create or join a classroom to start chatting.</p>
+        <div class="empty-state-actions">
+          <button class="primary-btn" id="empty-create-btn">+ Create Classroom</button>
+          <button class="secondary-btn" id="empty-join-btn">🔗 Join Classroom</button>
+        </div>
+      </div>
+
+      <!-- Chat (shown when classroom selected) -->
+      <div id="classroom-content" style="display:none">
+        <div class="classroom-header">
+          <h2 id="classroom-name"></h2>
+          <span class="classroom-id-badge" id="classroom-id-badge"></span>
+          <!-- Teacher-only banner upload -->
+          <div class="banner-wrap">
+            <button class="banner-upload-btn" id="banner-upload-btn" style="display:none">📷 Banner</button>
+            <input type="file" id="banner-file-input" accept="image/*" style="display:none">
+          </div>
+        </div>
+        <div class="classroom-banner" id="classroom-banner" style="display:none">
+          <img src="" alt="Classroom Banner" id="banner-image">
+        </div>
+
+        <div class="chat-container">
+          <div class="chat-messages" id="chat-messages">
+            <div class="chat-placeholder">No messages yet. Say hello! 👋</div>
+          </div>
+          <div class="chat-input-area">
+            <div class="chat-user-avatar-wrap">
+              <img src="../public/default-avatar.svg" class="chat-user-avatar" id="chat-user-avatar" alt="">
+            </div>
+            <input type="text" id="chat-input" placeholder="Type a message..." autocomplete="off">
+            <button id="chat-send-btn" class="send-btn">Send</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- RIGHT PANEL — Messages (One-to-One) -->
+    <aside class="sidebar-right">
+      <div class="messages-panel">
+        <div class="messages-panel-header">
+          <h3>Messages</h3>
+          <div class="streak-badge" id="streak-badge" title="Login Streak">🔥 <span id="streak-count">0</span></div>
+        </div>
+
+        <!-- Contact list -->
+        <div id="dm-contacts-panel" class="dm-contacts-panel">
+          <div class="dm-contacts-list" id="dm-contacts-list">
+            <div class="dm-empty">No conversations yet.<br>Start one below!</div>
+          </div>
+          <div class="dm-new-row">
+            <input type="text" id="dm-user-id-input" placeholder="Enter user ID to message…" class="dm-new-input">
+            <button id="dm-new-btn" class="send-btn">→</button>
+          </div>
+        </div>
+
+        <!-- Chat thread (hidden until contact selected) -->
+        <div id="dm-thread-panel" class="dm-thread-panel" style="display:none">
+          <div class="dm-thread-header">
+            <button class="dm-back-btn" id="dm-back-btn">← Back</button>
+            <span class="dm-thread-name" id="dm-thread-name"></span>
+          </div>
+          <div class="dm-messages" id="dm-messages"></div>
+          <div class="dm-input-row">
+            <input type="text" id="dm-input" placeholder="Type a message..." autocomplete="off">
+            <button id="dm-send-btn" class="send-btn">Send</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings & Personalize -->
+      <div class="right-actions">
+        <button class="sidebar-btn" id="settings-btn">⚙️ Settings</button>
+        <button class="sidebar-btn" id="personalize-btn">🎨 Personalize</button>
+        <button class="sidebar-btn" id="subscription-btn">💎 Premium</button>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ===== MODALS ===== -->
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settings-modal" style="display:none">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>⚙️ Settings</h3>
+        <button class="modal-close" id="settings-modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="settings-section">
+          <h4>Account Info</h4>
+          <p>Name: <span id="settings-name"></span></p>
+          <p>Email: <span id="settings-email"></span></p>
+          <p>Role: <span id="settings-role"></span></p>
+        </div>
+        <div class="settings-section">
+          <h4>Notifications</h4>
+          <label class="toggle-label"><input type="checkbox" id="notif-chat" checked> Chat notifications</label>
+          <label class="toggle-label"><input type="checkbox" id="notif-tasks" checked> Task reminders</label>
+        </div>
+        <a href="/logout" class="logout-btn" id="logout-btn">🚪 Logout</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Subscription Modal -->
+  <div class="modal-overlay" id="subscription-modal" style="display:none">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>💎 Subscription Plan</h3>
+        <button class="modal-close" id="subscription-modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="coming-soon-content">
+          <div class="coming-soon-icon">💎</div>
+          <h2>Coming Soon!</h2>
+          <p>Premium features including advanced analytics, unlimited classrooms, AI-powered tutoring, and more.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Personalization Modal -->
+  <div class="modal-overlay" id="personalize-modal" style="display:none">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>🎨 Personalization</h3>
+        <button class="modal-close" id="personalize-modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="settings-section">
+          <h4>Accent Color</h4>
+          <input type="color" id="pref-color" value="#00d4ff" class="color-input">
+        </div>
+        <div class="settings-section">
+          <h4>Font Size</h4>
+          <div class="range-group">
+            <input type="range" id="pref-font-size" min="12" max="20" value="14" class="range-input">
+            <span id="font-size-label">14px</span>
+          </div>
+        </div>
+        <div class="settings-section">
+          <h4>Layout Density</h4>
+          <select id="pref-density" class="form-select">
+            <option value="comfortable">Comfortable</option>
+            <option value="compact">Compact</option>
+          </select>
+        </div>
+        <button class="save-prefs-btn" id="save-prefs-btn">Save Preferences</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Classroom Modal -->
+  <div class="modal-overlay" id="create-classroom-modal" style="display:none">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>🏫 Create Classroom</h3>
+        <button class="modal-close" id="create-classroom-modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label" for="new-classroom-name">Classroom Name</label>
+        <input type="text" id="new-classroom-name" placeholder="e.g. AP Computer Science" class="form-input">
+        <button class="create-btn" id="create-classroom-submit">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Join Classroom Modal -->
+  <div class="modal-overlay" id="join-classroom-modal" style="display:none">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>🔗 Join Classroom</h3>
+        <button class="modal-close" id="join-classroom-modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label" for="join-classroom-id">Classroom ID</label>
+        <input type="text" id="join-classroom-id" placeholder="Enter classroom ID..." class="form-input">
+        <button class="create-btn" id="join-classroom-submit">Join</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="../public/script.js"></script>
+</body>
+</html>

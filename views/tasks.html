@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edugen — Assignments</title>
+  <meta name="description" content="Edugen Tasks — create, submit, and grade assignments and tasks for your classroom.">
+  <link rel="stylesheet" href="../public/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body data-page="tasks">
+
+  <!-- HEADER -->
+  <header class="main-header">
+    <div class="header-left">
+      <img src="../public/logo.svg" alt="Edugen" class="header-logo">
+    </div>
+    <nav class="header-nav">
+      <a href="/dashboard" class="nav-link" id="nav-dashboard">Dashboard</a>
+      <a href="/tutorials" class="nav-link" id="nav-tutorials">My Courses</a>
+      <a href="/tasks" class="nav-link active" id="nav-tasks">Assignments</a>
+      <a href="/discussions" class="nav-link" id="nav-discussions">Grades</a>
+      <a href="#" class="nav-link" id="nav-schedule">Schedule</a>
+    </nav>
+    <div class="header-right">
+      <button class="header-icon-btn" id="notif-btn" title="Notifications">
+        <span class="notif-dot" id="notif-dot"></span>
+        🔔
+      </button>
+      <div class="streak-badge" id="streak-badge" title="Login Streak">🔥 <span id="streak-count">0</span></div>
+      <div class="classroom-dropdown">
+        <button class="header-btn dropdown-toggle" id="classroom-dropdown-btn">🏫 My Classrooms ▾</button>
+        <div class="dropdown-menu" id="classroom-dropdown-menu">
+          <div class="dropdown-header">Your Classrooms</div>
+          <div id="classroom-list"></div>
+          <div class="dropdown-actions">
+            <button class="dropdown-item create-classroom-btn" id="create-classroom-btn">+ Create</button>
+            <button class="dropdown-item join-classroom-btn" id="join-classroom-btn">🔗 Join</button>
+          </div>
+        </div>
+      </div>
+      <div class="user-profile" id="user-profile">
+        <img src="../public/default-avatar.svg" alt="" class="user-avatar" id="user-avatar">
+        <span class="user-name" id="user-name"></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <div class="page-container">
+    <!-- Page Header -->
+    <div class="page-top-bar">
+      <div class="page-top-left">
+        <a href="/dashboard" class="back-link" id="back-to-dashboard">← Dashboard</a>
+        <div class="page-title-group">
+          <h1 class="page-title">Assignments</h1>
+          <p class="page-subtitle">Manage tasks, submissions, and grades</p>
+        </div>
+      </div>
+      <div class="page-top-right">
+        <button class="primary-btn teacher-only" id="create-task-btn" style="display:none">+ Create Task</button>
+      </div>
+    </div>
+
+    <!-- No classroom selected -->
+    <div id="no-classroom-warning" class="empty-state">
+      <div class="empty-state-icon">🏫</div>
+      <h2>No Classroom Selected</h2>
+      <p>Please select a classroom from the header to view assignments.</p>
+      <a href="/dashboard" class="primary-btn">Go to Dashboard</a>
+    </div>
+
+    <!-- Task filters (tab-style) -->
+    <div class="task-filters" id="task-filters" style="display:none">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="pending">Pending</button>
+      <button class="filter-btn" data-filter="submitted">Submitted</button>
+      <button class="filter-btn" data-filter="graded">Graded</button>
+    </div>
+
+    <!-- Tasks list -->
+    <div class="tasks-list" id="tasks-list"></div>
+
+    <!-- Empty state -->
+    <div id="no-tasks-state" class="empty-state" style="display:none">
+      <div class="empty-state-icon">📋</div>
+      <h2>No Assignments Yet</h2>
+      <p>No assignments have been posted for this classroom.</p>
+    </div>
+  </div>
+
+  <!-- Create Task Modal (Teacher) -->
+  <div class="modal-overlay" id="create-task-modal" style="display:none">
+    <div class="modal-card modal-card-lg">
+      <div class="modal-header">
+        <h3>📋 Create New Task</h3>
+        <button class="modal-close" id="create-task-modal-close">✕</button>
+      </div>
+      <form class="modal-body" id="create-task-form">
+        <div class="form-group">
+          <label class="form-label" for="task-title">Task Title</label>
+          <input type="text" id="task-title" name="title" placeholder="e.g. Chapter 5 Homework" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="task-description">Description</label>
+          <textarea id="task-description" name="description" placeholder="Describe the task, requirements, and expectations..." class="form-textarea" rows="5" required></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="task-due-date">Due Date</label>
+            <input type="date" id="task-due-date" name="due_date" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="task-attachment">Attachment <span class="optional-label">(optional)</span></label>
+            <input type="file" id="task-attachment" name="file" class="form-input file-input">
+          </div>
+        </div>
+        <button type="submit" class="create-btn" id="submit-task-btn">Create Task</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Submit Work Modal (Student) -->
+  <div class="modal-overlay" id="submit-task-modal" style="display:none">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>📤 Submit Work</h3>
+        <button class="modal-close" id="submit-work-modal-close">✕</button>
+      </div>
+      <form class="modal-body" id="submit-task-form">
+        <input type="hidden" id="submit-task-id" name="taskId" value="">
+        <div class="form-group">
+          <label class="form-label" for="submission-text">Your Work</label>
+          <textarea id="submission-text" name="submission_text" placeholder="Write your answer or describe your submission..." class="form-textarea" rows="6" required></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="submission-file">Upload File <span class="optional-label">(optional)</span></label>
+          <input type="file" id="submission-file" name="file" class="form-input file-input">
+        </div>
+        <button type="submit" class="create-btn" id="submit-work-btn">Submit</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- View Submissions Modal (Teacher) -->
+  <div class="modal-overlay" id="submissions-modal" style="display:none">
+    <div class="modal-card modal-card-lg">
+      <div class="modal-header">
+        <h3>📊 Submissions</h3>
+        <button class="modal-close" id="submissions-modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <h4 id="submissions-task-title" class="submissions-task-title"></h4>
+        <div class="submissions-list" id="submissions-list"></div>
+        <div id="no-submissions-state" class="empty-state-inline" style="display:none">
+          <p>No submissions received yet.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Classroom Modals -->
+  <div class="modal-overlay" id="create-classroom-modal" style="display:none">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>🏫 Create Classroom</h3>
+        <button class="modal-close" id="create-classroom-modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label" for="new-classroom-name">Classroom Name</label>
+        <input type="text" id="new-classroom-name" placeholder="e.g. AP Computer Science" class="form-input">
+        <button class="create-btn" id="create-classroom-submit">Create</button>
+      </div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="join-classroom-modal" style="display:none">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>🔗 Join Classroom</h3>
+        <button class="modal-close" id="join-classroom-modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label" for="join-classroom-id">Classroom ID</label>
+        <input type="text" id="join-classroom-id" placeholder="Enter classroom ID..." class="form-input">
+        <button class="create-btn" id="join-classroom-submit">Join</button>
+      </div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="settings-modal" style="display:none">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>⚙️ Settings</h3>
+        <button class="modal-close" id="settings-modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="settings-section">
+          <h4>Account Info</h4>
+          <p>Name: <span id="settings-name"></span></p>
+          <p>Email: <span id="settings-email"></span></p>
+          <p>Role: <span id="settings-role"></span></p>
+        </div>
+        <a href="/logout" class="logout-btn" id="logout-btn">🚪 Logout</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task Card Template -->
+  <template id="task-card-template">
+    <div class="task-card" data-task-id="">
+      <div class="task-card-header">
+        <h4 class="task-title"></h4>
+        <span class="task-status-badge"></span>
+      </div>
+      <p class="task-description"></p>
+      <div class="task-meta">
+        <span class="task-due-date">📅 Due: <span class="due-date-text"></span></span>
+        <span class="task-attachment-link" style="display:none">📎 <a href="" target="_blank" class="attachment-link">Attachment</a></span>
+      </div>
+      <div class="task-card-footer">
+        <div class="teacher-actions teacher-only" style="display:none">
+          <span class="submission-count">0 submissions</span>
+          <button class="view-submissions-btn secondary-btn">View Submissions</button>
+          <button class="delete-task-btn danger-btn">Delete</button>
+        </div>
+        <div class="student-actions student-only" style="display:none">
+          <button class="submit-work-trigger primary-btn">Submit Work</button>
+          <div class="submission-status" style="display:none">
+            <span class="submission-status-icon">✅</span>
+            <span class="submission-status-text">Submitted</span>
+          </div>
+        </div>
+      </div>
+      <div class="submission-details" style="display:none">
+        <div class="submission-detail-header">
+          <h5>Your Submission</h5>
+          <span class="submission-grade"></span>
+        </div>
+        <p class="submission-detail-text"></p>
+        <a href="" target="_blank" class="submission-file-link" style="display:none">📎 Submitted File</a>
+        <div class="submission-feedback" style="display:none">
+          <h5>Teacher Feedback</h5>
+          <p class="feedback-text"></p>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- Submission Entry Template (teacher view) -->
+  <template id="submission-entry-template">
+    <div class="submission-entry" data-submission-id="">
+      <div class="submission-entry-header">
+        <span class="submission-student-name"></span>
+        <span class="submission-entry-date"></span>
+      </div>
+      <p class="submission-entry-text"></p>
+      <a href="" target="_blank" class="submission-entry-file" style="display:none">📎 File</a>
+      <div class="grading-area">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Grade</label>
+            <input type="text" class="grade-input form-input" placeholder="e.g. A+, 95/100">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Feedback</label>
+            <input type="text" class="feedback-input form-input" placeholder="Write feedback...">
+          </div>
+          <div class="form-group form-group-btn">
+            <button class="grade-submit-btn create-btn">Grade</button>
+          </div>
+        </div>
+        <div class="existing-grade" style="display:none">
+          <span class="existing-grade-text"></span>
+          <span class="existing-feedback-text"></span>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="../public/script.js"></script>
+</body>
+</html>

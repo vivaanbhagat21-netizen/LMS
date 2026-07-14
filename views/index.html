@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='UTF-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+  <title>Edugen — Login</title>
+  <meta name='description' content='Edugen educational platform — sign in as a student or teacher to access classrooms, tutorials, discussions, and tasks.'>
+  <link rel='stylesheet' href='../public/style.css'>
+  <link href='https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap' rel='stylesheet'>
+</head>
+<body class='login-page'>
+  <!-- Centered container -->
+  <div class='login-container'>
+    <!-- Logo -->
+    <img src='../public/logo.svg' alt='Edugen' class='login-logo'>
+
+    <!-- Login Card -->
+    <div class='login-card'>
+      <!-- Step 1: Role Selection -->
+      <div id='step-role' class='login-step active'>
+        <h2>Welcome to Edugen</h2>
+        <p class='subtitle'>Choose your role to get started</p>
+        <div class='role-buttons'>
+          <button class='role-btn' id='role-student-btn' data-role='student'>
+            <div class='role-icon'>🎓</div>
+            <span>Student</span>
+          </button>
+          <button class='role-btn' id='role-teacher-btn' data-role='teacher'>
+            <div class='role-icon'>👨‍🏫</div>
+            <span>Teacher</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Google Login -->
+      <div id='step-login' class='login-step'>
+        <h2>Sign In</h2>
+        <p class='subtitle'>Signing in as <span id='selected-role-text'></span></p>
+        <a href='/auth/google' id='google-btn' class='google-login-btn'>
+          <svg class='google-icon' viewBox='0 0 24 24' width='20' height='20'>
+            <path d='M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z' fill='#4285F4'/>
+            <path d='M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z' fill='#34A853'/>
+            <path d='M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z' fill='#FBBC05'/>
+            <path d='M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z' fill='#EA4335'/>
+          </svg>
+          Sign in with Google
+        </a>
+        <div id='google-not-configured' class='oauth-warning' style='display:none'>
+          <p>Google OAuth is not configured yet.</p>
+          <p style='font-size:0.85rem;margin-top:0.5rem;'>Add <code>GOOGLE_CLIENT_ID</code> and <code>GOOGLE_CLIENT_SECRET</code> to <code>.env</code>, then restart the server. Or use Dev Mode below.</p>
+        </div>
+        <div class='divider'><span>or</span></div>
+        <a href='#' id='dev-login-btn' class='dev-login-btn'>Continue without Google (Dev Mode)</a>
+        <button id='back-btn' class='back-btn'>← Back to role selection</button>
+      </div>
+    </div>
+  </div>
+
+  <script src='../public/script.js'></script>
+</body>
+</html>

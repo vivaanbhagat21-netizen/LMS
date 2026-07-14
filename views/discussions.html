@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edugen — Discussions</title>
+  <meta name="description" content="Edugen Discussions — share ideas, notes, and resources with your classmates in a collaborative board.">
+  <link rel="stylesheet" href="../public/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body data-page="discussions">
+
+  <!-- HEADER -->
+  <header class="main-header">
+    <div class="header-left">
+      <img src="../public/logo.svg" alt="Edugen" class="header-logo">
+    </div>
+    <nav class="header-nav">
+      <a href="/dashboard" class="nav-link" id="nav-dashboard">Dashboard</a>
+      <a href="/tutorials" class="nav-link" id="nav-tutorials">My Courses</a>
+      <a href="/tasks" class="nav-link" id="nav-tasks">Assignments</a>
+      <a href="/discussions" class="nav-link active" id="nav-discussions">Grades</a>
+      <a href="#" class="nav-link" id="nav-schedule">Schedule</a>
+    </nav>
+    <div class="header-right">
+      <button class="header-icon-btn" id="notif-btn" title="Notifications">
+        <span class="notif-dot" id="notif-dot"></span>
+        🔔
+      </button>
+      <div class="streak-badge" id="streak-badge" title="Login Streak">🔥 <span id="streak-count">0</span></div>
+      <div class="classroom-dropdown">
+        <button class="header-btn dropdown-toggle" id="classroom-dropdown-btn">🏫 My Classrooms ▾</button>
+        <div class="dropdown-menu" id="classroom-dropdown-menu">
+          <div class="dropdown-header">Your Classrooms</div>
+          <div id="classroom-list"></div>
+          <div class="dropdown-actions">
+            <button class="dropdown-item create-classroom-btn" id="create-classroom-btn">+ Create</button>
+            <button class="dropdown-item join-classroom-btn" id="join-classroom-btn">🔗 Join</button>
+          </div>
+        </div>
+      </div>
+      <div class="user-profile" id="user-profile">
+        <img src="../public/default-avatar.svg" alt="" class="user-avatar" id="user-avatar">
+        <span class="user-name" id="user-name"></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <div class="page-container">
+    <!-- Page Header -->
+    <div class="page-top-bar">
+      <div class="page-top-left">
+        <a href="/dashboard" class="back-link" id="back-to-dashboard">← Dashboard</a>
+        <div class="page-title-group">
+          <h1 class="page-title">Discussions</h1>
+          <p class="page-subtitle">Share ideas, notes, and resources with your classmates</p>
+        </div>
+      </div>
+      <div class="page-top-right">
+        <button class="primary-btn" id="add-note-btn">+ Add Note</button>
+      </div>
+    </div>
+
+    <!-- No classroom selected -->
+    <div id="no-classroom-warning" class="empty-state">
+      <div class="empty-state-icon">🏫</div>
+      <h2>No Classroom Selected</h2>
+      <p>Please select a classroom from the header to view discussions.</p>
+      <a href="/dashboard" class="primary-btn">Go to Dashboard</a>
+    </div>
+
+    <!-- Discussion Notes Grid -->
+    <div class="padlet-grid" id="padlet-grid"></div>
+
+    <!-- Empty state -->
+    <div id="no-discussions-state" class="empty-state" style="display:none">
+      <div class="empty-state-icon">📝</div>
+      <h2>No Discussions Yet</h2>
+      <p>Be the first to share a note! Click "Add Note" to get started.</p>
+    </div>
+  </div>
+
+  <!-- Add Note Modal -->
+  <div class="modal-overlay" id="add-note-modal" style="display:none">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>📝 Add a Note</h3>
+        <button class="modal-close" id="add-note-modal-close">✕</button>
+      </div>
+      <form class="modal-body" id="add-note-form">
+        <div class="form-group">
+          <label class="form-label" for="note-title">Title</label>
+          <input type="text" id="note-title" placeholder="Give your note a title..." class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="note-text">Content</label>
+          <textarea id="note-text" placeholder="Write your thoughts, ideas, or questions..." class="form-textarea" rows="5"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="note-image-url">Image URL <span class="optional-label">(optional)</span></label>
+          <input type="url" id="note-image-url" placeholder="https://example.com/image.jpg" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="note-link-url">Link URL <span class="optional-label">(optional)</span></label>
+          <input type="url" id="note-link-url" placeholder="https://example.com/resource" class="form-input">
+        </div>
+        <button type="submit" class="create-btn" id="submit-note-btn">Post Note</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modals: Create / Join Classroom -->
+  <div class="modal-overlay" id="create-classroom-modal" style="display:none">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>🏫 Create Classroom</h3>
+        <button class="modal-close" id="create-classroom-modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label" for="new-classroom-name">Classroom Name</label>
+        <input type="text" id="new-classroom-name" placeholder="e.g. AP Computer Science" class="form-input">
+        <button class="create-btn" id="create-classroom-submit">Create</button>
+      </div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="join-classroom-modal" style="display:none">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>🔗 Join Classroom</h3>
+        <button class="modal-close" id="join-classroom-modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label" for="join-classroom-id">Classroom ID</label>
+        <input type="text" id="join-classroom-id" placeholder="Enter classroom ID..." class="form-input">
+        <button class="create-btn" id="join-classroom-submit">Join</button>
+      </div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="settings-modal" style="display:none">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>⚙️ Settings</h3>
+        <button class="modal-close" id="settings-modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="settings-section">
+          <h4>Account Info</h4>
+          <p>Name: <span id="settings-name"></span></p>
+          <p>Email: <span id="settings-email"></span></p>
+          <p>Role: <span id="settings-role"></span></p>
+        </div>
+        <a href="/logout" class="logout-btn" id="logout-btn">🚪 Logout</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Discussion Note Card Template -->
+  <template id="discussion-card-template">
+    <div class="discussion-card" data-note-id="" data-accent-index="0">
+      <div class="note-accent-bar"></div>
+      <div class="note-content">
+        <h4 class="note-title"></h4>
+        <p class="note-text"></p>
+        <img src="" alt="Note image" class="note-image" style="display:none">
+        <a href="" target="_blank" rel="noopener noreferrer" class="note-link" style="display:none">🔗 View Resource</a>
+      </div>
+      <div class="note-footer">
+        <span class="note-author"></span>
+        <span class="note-date"></span>
+      </div>
+    </div>
+  </template>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="../public/script.js"></script>
+</body>
+</html>
