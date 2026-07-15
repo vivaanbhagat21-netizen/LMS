@@ -51,38 +51,34 @@
     <!-- LEFT SIDEBAR -->
     <aside class="sidebar-left">
       <div class="sidebar-section">
-        <h3>🎮 Games</h3>
-        <div class="game-list" id="game-list">
-          <div class="game-item">
-            <div class="game-icon" style="background:#1e3a6e;">M</div>
-            <div class="game-info">
-              <div class="game-title">Math Quest</div>
-              <div class="game-sub">Algebra challenges</div>
+        <h3>� Leaderboard</h3>
+        <div class="leaderboard-list" id="leaderboard-list">
+          <div class="leaderboard-item">
+            <div class="leaderboard-rank">1</div>
+            <div class="leaderboard-info">
+              <div class="leaderboard-name">Ava Chen</div>
+              <div class="leaderboard-meta">12 streak • 98% completion</div>
             </div>
+            <div class="leaderboard-score">1,240</div>
           </div>
-          <div class="game-item">
-            <div class="game-icon" style="background:#1e4a2e;">P</div>
-            <div class="game-info">
-              <div class="game-title">Physics Runner</div>
-              <div class="game-sub">Laws of motion</div>
+          <div class="leaderboard-item">
+            <div class="leaderboard-rank">2</div>
+            <div class="leaderboard-info">
+              <div class="leaderboard-name">Noah Patel</div>
+              <div class="leaderboard-meta">10 streak • 95% completion</div>
             </div>
+            <div class="leaderboard-score">1,180</div>
           </div>
-          <div class="game-item">
-            <div class="game-icon" style="background:#3e1e3a;">C</div>
-            <div class="game-info">
-              <div class="game-title">Code Clash</div>
-              <div class="game-sub">Python puzzles</div>
+          <div class="leaderboard-item">
+            <div class="leaderboard-rank">3</div>
+            <div class="leaderboard-info">
+              <div class="leaderboard-name">Mia Rivera</div>
+              <div class="leaderboard-meta">9 streak • 93% completion</div>
             </div>
-          </div>
-          <div class="game-item">
-            <div class="game-icon" style="background:#3e3a1e;">W</div>
-            <div class="game-info">
-              <div class="game-title">Word Wizards</div>
-              <div class="game-sub">Vocabulary builder</div>
-            </div>
+            <div class="leaderboard-score">1,120</div>
           </div>
         </div>
-        <button class="coming-soon-btn" id="games-btn">Notify Me When Live</button>
+        <button class="coming-soon-btn" id="leaderboard-btn">View full leaderboard</button>
       </div>
 
       <div class="sidebar-section">
@@ -160,6 +156,7 @@
         <div class="classroom-header">
           <h2 id="classroom-name"></h2>
           <span class="classroom-id-badge" id="classroom-id-badge"></span>
+          <button class="header-btn" id="create-task-btn" style="display:none">+ Add Task</button>
           <!-- Teacher-only banner upload -->
           <div class="banner-wrap">
             <button class="banner-upload-btn" id="banner-upload-btn" style="display:none">📷 Banner</button>
@@ -324,10 +321,41 @@
         <button class="modal-close" id="join-classroom-modal-close">✕</button>
       </div>
       <div class="modal-body">
-        <label class="form-label" for="join-classroom-id">Classroom ID</label>
-        <input type="text" id="join-classroom-id" placeholder="Enter classroom ID..." class="form-input">
+        <label class="form-label" for="join-classroom-id">Classroom ID or Join Code (OTP)</label>
+        <input type="text" id="join-classroom-id" placeholder="Enter ID or Code..." class="form-input">
         <button class="create-btn" id="join-classroom-submit">Join</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Create Task Modal (Teacher) -->
+  <div class="modal-overlay" id="create-task-modal" style="display:none">
+    <div class="modal-card modal-card-lg">
+      <div class="modal-header">
+        <h3>📋 Create New Task</h3>
+        <button class="modal-close" id="create-task-modal-close">✕</button>
+      </div>
+      <form class="modal-body" id="create-task-form">
+        <div class="form-group">
+          <label class="form-label" for="task-title">Task Title</label>
+          <input type="text" id="task-title" name="title" placeholder="e.g. Chapter 5 Homework" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="task-description">Description</label>
+          <textarea id="task-description" name="description" placeholder="Describe the task, requirements, and expectations..." class="form-textarea" rows="5" required></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="task-due-date">Due Date</label>
+            <input type="date" id="task-due-date" name="due_date" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="task-attachment">Attachment <span class="optional-label">(optional)</span></label>
+            <input type="file" id="task-attachment" name="file" class="form-input file-input">
+          </div>
+        </div>
+        <button type="submit" class="create-btn" id="submit-task-btn">Create Task</button>
+      </form>
     </div>
   </div>
 

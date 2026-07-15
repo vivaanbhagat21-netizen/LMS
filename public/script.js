@@ -297,7 +297,7 @@
       if (noState) noState.style.display = 'none';
       if (content) content.style.display = 'block';
       if (nameEl) nameEl.textContent = classroom.name;
-      if (idBadge) idBadge.textContent = 'ID: ' + classroom.id;
+      if (idBadge) idBadge.textContent = 'ID: ' + classroom.id + (classroom.otp ? ' | Code: ' + classroom.otp : '');
 
       // Load banner
       loadBanner();
@@ -310,6 +310,11 @@
       if (bannerBtn) {
         bannerBtn.style.display =
           currentUser.role === 'teacher' ? 'block' : 'none';
+      }
+      var taskBtn = document.getElementById('create-task-btn');
+      if (taskBtn) {
+        taskBtn.style.display =
+          currentUser.role === 'teacher' ? 'inline-flex' : 'none';
       }
     }
 
@@ -393,6 +398,9 @@
 
     // Sidebar DM panel
     setupSidebarDM();
+
+    // Classroom task creation
+    setupTaskForm();
 
     // AI assistant
     setupAIAssistant();
@@ -1431,8 +1439,47 @@
     setupModal('settings-btn', 'settings-modal');
     setupModal('subscription-btn', 'subscription-modal');
     setupModal('personalize-btn', 'personalize-modal');
-    setupModal('create-classroom-btn', 'create-classroom-modal');
+
+    // Show/hide/redirect based on role
+    var isTeacher = currentUser && currentUser.role === 'teacher';
+
+    // Dropdown +Create button: teachers only (hide for students)
+    var dCreateBtn = document.getElementById('create-classroom-btn');
+    if (dCreateBtn) {
+      if (isTeacher) {
+        dCreateBtn.style.display = 'block';
+        setupModal('create-classroom-btn', 'create-classroom-modal');
+      } else {
+        dCreateBtn.style.display = 'none';
+      }
+    }
+
+    // Dropdown 🔗Join button: both teachers and students can use
     setupModal('join-classroom-btn', 'join-classroom-modal');
+
+    // Welcome banner "+ New Course" button: opens create for teacher, join for student
+    var bannerNewCourseBtn = document.getElementById('new-course-btn');
+    if (bannerNewCourseBtn) {
+      bannerNewCourseBtn.addEventListener('click', function () {
+        var modalId = isTeacher ? 'create-classroom-modal' : 'join-classroom-modal';
+        var modal = document.getElementById(modalId);
+        if (modal) modal.style.display = 'flex';
+      });
+    }
+
+    // Empty state "+ Create Classroom" button: teachers only (hide for students)
+    var eCreateBtn = document.getElementById('empty-create-btn');
+    if (eCreateBtn) {
+      if (isTeacher) {
+        eCreateBtn.style.display = 'inline-block';
+        setupModal('empty-create-btn', 'create-classroom-modal');
+      } else {
+        eCreateBtn.style.display = 'none';
+      }
+    }
+
+    // Empty state "Join Classroom" button: both teachers and students can use
+    setupModal('empty-join-btn', 'join-classroom-modal');
 
     // Close any modal that has close buttons or overlay clicks
     document.querySelectorAll('.modal-overlay').forEach(function (modal) {
@@ -1459,8 +1506,12 @@
           showToast('Please enter a classroom name', 'error');
           return;
         }
+        if (currentUser && currentUser.role !== 'teacher') {
+          showToast('Only teachers can create classrooms', 'error');
+          return;
+        }
         try {
-          await api('/api/classrooms', {
+          var classroom = await api('/api/classrooms', {
             method: 'POST',
             body: JSON.stringify({ name: name }),
           });
@@ -1468,6 +1519,9 @@
           var modal = document.getElementById('create-classroom-modal');
           if (modal) modal.style.display = 'none';
           await loadClassrooms();
+          if (classroom && classroom.id) {
+            switchClassroom(classroom);
+          }
           showToast('Classroom created!', 'success');
         } catch (e) {
           showToast('Failed to create classroom', 'error');
@@ -1483,18 +1537,24 @@
         if (!idInput) return;
         var id = idInput.value.trim();
         if (!id) {
-          showToast('Please enter a classroom ID', 'error');
+          showToast('Please enter a classroom ID or Join Code (OTP)', 'error');
           return;
         }
         try {
-          await api('/api/classrooms/' + id + '/join', { method: 'POST' });
+          var res = await api('/api/classrooms/' + encodeURIComponent(id) + '/join', { method: 'POST' });
           idInput.value = '';
           var modal = document.getElementById('join-classroom-modal');
           if (modal) modal.style.display = 'none';
           await loadClassrooms();
           showToast('Joined classroom!', 'success');
+          if (res && res.classroomId) {
+            var newClass = await api('/api/classrooms/' + res.classroomId);
+            if (newClass) {
+              switchClassroom(newClass);
+            }
+          }
         } catch (e) {
-          showToast('Failed to join classroom', 'error');
+          showToast('Failed to join classroom. Invalid ID or Code.', 'error');
         }
       });
     }
@@ -1535,11 +1595,11 @@
       });
     }
 
-    // Games button
-    var gamesBtn = document.getElementById('games-btn');
-    if (gamesBtn) {
-      gamesBtn.addEventListener('click', function () {
-        showToast('Games coming soon! 🎮');
+    // Leaderboard button
+    var leaderboardBtn = document.getElementById('leaderboard-btn');
+    if (leaderboardBtn) {
+      leaderboardBtn.addEventListener('click', function () {
+        showToast('Leaderboard updates daily 🏆');
       });
     }
   }

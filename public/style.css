@@ -8,18 +8,18 @@
 
 /* --- CSS Variables --- */
 :root {
-  --bg-primary: #0a0e27;
-  --bg-secondary: #0f1538;
-  --bg-card: #111a3a;
-  --bg-input: #0d1230;
-  --border-glow: rgba(0, 212, 255, 0.3);
-  --shadow-glow: 0 0 15px rgba(0, 212, 255, 0.15);
-  --shadow-glow-strong: 0 0 25px rgba(0, 212, 255, 0.3);
-  --accent: #00d4ff;
-  --accent-hover: #33dfff;
-  --text-primary: #ffffff;
-  --text-secondary: #c0c8e0;
-  --text-muted: #7a84a5;
+  --bg-primary: #fffdf7;
+  --bg-secondary: #f6e8b2;
+  --bg-card: #fff8e6;
+  --bg-input: #fff4d2;
+  --border-glow: rgba(184, 135, 12, 0.25);
+  --shadow-glow: 0 0 15px rgba(184, 135, 12, 0.18);
+  --shadow-glow-strong: 0 0 25px rgba(184, 135, 12, 0.28);
+  --accent: #b8870c;
+  --accent-hover: #e4b56e;
+  --text-primary: #3d2f00;
+  --text-secondary: #7f6a32;
+  --text-muted: #a1885d;
   --radius: 12px;
   --radius-sm: 8px;
   --font-family: 'Inter', sans-serif;
@@ -76,27 +76,16 @@ body {
 
 /* --- Selection Highlight --- */
 ::selection {
-  background: rgba(0, 212, 255, 0.3);
+  background: rgba(184, 135, 12, 0.25);
   color: var(--text-primary);
 }
 
 ::-moz-selection {
-  background: rgba(0, 212, 255, 0.3);
+  background: rgba(184, 135, 12, 0.25);
   color: var(--text-primary);
 }
 
-/* --- Grid Pattern Background --- */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background-image:
-    linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
-  background-size: 40px 40px;
-}
+
 
 /* --- Links --- */
 a {
@@ -135,7 +124,7 @@ a:hover {
   width: 180px;
   margin-bottom: 2rem;
   animation: float 3s ease-in-out infinite;
-  filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.3));
+  filter: drop-shadow(0 0 20px rgba(184, 135, 12, 0.25));
 }
 
 .login-card {
@@ -207,7 +196,7 @@ a:hover {
   border-color: var(--accent);
   box-shadow: var(--shadow-glow-strong);
   transform: scale(1.03);
-  background: rgba(0, 212, 255, 0.05);
+  background: rgba(184, 135, 12, 0.06);
 }
 
 .role-btn:active {
@@ -339,7 +328,7 @@ a:hover {
   align-items: center;
   justify-content: space-between;
   padding: 0 1.5rem;
-  background: rgba(15, 21, 56, 0.85);
+  background: rgba(255, 250, 235, 0.95);
   border-bottom: 1px solid var(--border-glow);
   z-index: 1000;
   backdrop-filter: blur(10px);
@@ -526,13 +515,13 @@ a:hover {
 .sidebar-left {
   padding: 1.5rem;
   border-right: 1px solid var(--border-glow);
-  background: rgba(15, 21, 56, 0.5);
+  background: rgba(255, 250, 235, 0.8);
 }
 
 .sidebar-right {
   padding: 1.5rem;
   border-left: 1px solid var(--border-glow);
-  background: rgba(15, 21, 56, 0.5);
+  background: rgba(255, 250, 235, 0.8);
 }
 
 .main-content {
@@ -679,7 +668,7 @@ a:hover {
   gap: 8px;
   font-weight: 600;
   font-size: 0.9rem;
-  background: rgba(0, 212, 255, 0.03);
+  background: rgba(184, 135, 12, 0.05);
 }
 
 .chat-header-icon {
@@ -1839,7 +1828,7 @@ body.compact .padlet-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(0,212,255,0.05) 100%);
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(255, 247, 0, 0.05) 100%);
   border: 1px solid var(--border-glow);
   border-radius: var(--radius);
   padding: 1.5rem 2rem;
@@ -2010,43 +1999,54 @@ body.compact .padlet-card {
   font-size: 0.875rem;
 }
 
-/* --- Game List (sidebar) --- */
-.game-list {
+/* --- Leaderboard (sidebar) --- */
+.leaderboard-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
   margin-bottom: 10px;
 }
-.game-item {
+.leaderboard-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px;
+  padding: 9px 10px;
   border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: var(--transition);
+  background: rgba(0, 212, 255, 0.04);
+  border: 1px solid rgba(0, 212, 255, 0.12);
 }
-.game-item:hover { background: rgba(0,212,255,0.05); }
-.game-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+.leaderboard-rank {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 0.75rem;
   font-weight: 700;
-  font-size: 0.85rem;
-  color: #fff;
+  color: var(--bg-primary);
+  background: linear-gradient(135deg, var(--accent), #7c4dff);
   flex-shrink: 0;
 }
-.game-title {
-  font-size: 0.8rem;
+.leaderboard-info {
+  flex: 1;
+  min-width: 0;
+}
+.leaderboard-name {
+  font-size: 0.78rem;
   font-weight: 600;
   color: var(--text-primary);
 }
-.game-sub {
-  font-size: 0.7rem;
+.leaderboard-meta {
+  font-size: 0.68rem;
   color: var(--text-muted);
+  margin-top: 2px;
+}
+.leaderboard-score {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
 }
 
 /* --- AI Assistant Panel (sidebar) --- */

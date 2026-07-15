@@ -55,6 +55,7 @@ db.exec(`
     name TEXT,
     banner_url TEXT,
     teacher_id INTEGER,
+    otp TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(teacher_id) REFERENCES users(id)
   );
@@ -134,6 +135,13 @@ db.exec(`
     timestamp TEXT DEFAULT CURRENT_TIMESTAMP
   );
 `);
+
+// Try to add the otp column in case the table already exists without it
+try {
+  db.prepare("ALTER TABLE classrooms ADD COLUMN otp TEXT").run();
+} catch (e) {
+  // column already exists
+}
 
 // ─── Session middleware (shared between Express & Socket.io) ─────────────────
 const sessionMiddleware = session({
@@ -361,15 +369,39 @@ app.get('/api/classrooms', isAuthenticated, (req, res) => {
   res.json(classrooms);
 });
 
+function generateOTP() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  for (let i = 0; i < 6; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
 app.post('/api/classrooms', isAuthenticated, (req, res) => {
   const { name } = req.body;
   const userId = req.session.user.id;
   const role = req.session.user.role;
-  const teacherId = role === 'teacher' ? userId : null;
+
+  if (role !== 'teacher') {
+    return res.status(403).json({ error: 'Only teachers can create classrooms' });
+  }
+  const teacherId = userId;
+
+  // Generate a unique 6-character OTP
+  let otp;
+  let isUnique = false;
+  while (!isUnique) {
+    otp = generateOTP();
+    const existing = db.prepare('SELECT id FROM classrooms WHERE otp = ?').get(otp);
+    if (!existing) {
+      isUnique = true;
+    }
+  }
 
   const result = db.prepare(
-    'INSERT INTO classrooms (name, teacher_id) VALUES (?, ?)'
-  ).run(name, teacherId);
+    'INSERT INTO classrooms (name, teacher_id, otp) VALUES (?, ?, ?)'
+  ).run(name, teacherId, otp);
 
   const classroomId = result.lastInsertRowid;
 
@@ -382,23 +414,36 @@ app.post('/api/classrooms', isAuthenticated, (req, res) => {
 });
 
 app.post('/api/classrooms/:id/join', isAuthenticated, (req, res) => {
-  const classroomId = req.params.id;
+  const classroomIdOrOtp = req.params.id;
   const userId = req.session.user.id;
   const role = req.session.user.role;
 
+  // Resolve classroom by ID or OTP
+  let classroom;
+  if (/^\d+$/.test(classroomIdOrOtp)) {
+    classroom = db.prepare('SELECT * FROM classrooms WHERE id = ?').get(parseInt(classroomIdOrOtp));
+  }
+  if (!classroom) {
+    classroom = db.prepare('SELECT * FROM classrooms WHERE otp = ?').get(classroomIdOrOtp.toUpperCase());
+  }
+
+  if (!classroom) {
+    return res.status(404).json({ error: 'Classroom not found' });
+  }
+
   const existing = db.prepare(
     'SELECT * FROM classroom_members WHERE classroom_id = ? AND user_id = ?'
-  ).get(classroomId, userId);
+  ).get(classroom.id, userId);
 
   if (existing) {
-    return res.json({ message: 'Already a member' });
+    return res.json({ message: 'Already a member', classroomId: classroom.id });
   }
 
   db.prepare(
     'INSERT INTO classroom_members (classroom_id, user_id, role) VALUES (?, ?, ?)'
-  ).run(classroomId, userId, role);
+  ).run(classroom.id, userId, role);
 
-  res.json({ success: true });
+  res.json({ success: true, classroomId: classroom.id });
 });
 
 app.post('/api/classrooms/:id/banner', isAuthenticated, upload.single('banner'), (req, res) => {
