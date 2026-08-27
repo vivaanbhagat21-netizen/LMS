@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 60" fill="none">
+  <!-- Geometric 'e' icon -->
+  <g transform="translate(10, 2)">
+    <!-- Outer circle -->
+    <circle cx="18" cy="18" r="16" stroke="#00d4ff" stroke-width="3.5" fill="none"/>
+    <!-- Horizontal bar of the 'e' -->
+    <line x1="6" y1="18" x2="30" y2="18" stroke="#00d4ff" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- Cut-out gap at bottom-right to form the 'e' opening -->
+    <path d="M 28 22 A 16 16 0 0 0 34 18" stroke="#0a0e27" stroke-width="5" fill="none"/>
+    <!-- Redraw the opening as a clean gap -->
+    <path d="M 18 34 A 16 16 0 0 0 32.5 22" stroke="#0a0e27" stroke-width="5" fill="none"/>
+    <!-- Small accent dot -->
+    <circle cx="30" cy="24" r="2" fill="#00d4ff"/>
+  </g>
+  <!-- Wordmark 'edugen' -->
+  <text x="50" y="27" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff" letter-spacing="-0.5">edugen</text>
+  <!-- Subtle tagline or underline accent -->
+  <rect x="50" y="32" width="30" height="2" rx="1" fill="#00d4ff" opacity="0.6"/>
+</svg>

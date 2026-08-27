@@ -4,13 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ORIGIN</title>
-  <meta name="description" content="ORIGIN Discussions — share ideas, notes, and resources with your classmates in a collaborative board.">
+  <meta name="description" content="ORIGIN gradebook — review assignment progress, grades, and feedback for the selected classroom.">
   <link rel="stylesheet" href="../public/style.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body data-page="discussions">
+<body data-page="grades">
 
-  <!-- HEADER -->
   <header class="main-header">
     <div class="header-left">
       <img src="../public/origin-logo.png" alt="ORIGIN" class="header-logo">
@@ -19,7 +18,7 @@
       <a href="/dashboard" class="nav-link" id="nav-dashboard">Dashboard</a>
       <a href="/tutorials" class="nav-link" id="nav-tutorials">Handouts</a>
       <a href="/tasks" class="nav-link" id="nav-tasks">Assignments</a>
-      <a href="/grades" class="nav-link" id="nav-discussions">Grades</a>
+      <a href="/grades" class="nav-link active" id="nav-discussions">Grades</a>
       <a href="/schedule" class="nav-link" id="nav-schedule">Schedule</a>
     </nav>
     <div class="header-right">
@@ -46,71 +45,48 @@
     </div>
   </header>
 
-  <!-- MAIN CONTENT -->
   <div class="page-container">
-    <!-- Page Header -->
     <div class="page-top-bar">
       <div class="page-top-left">
-        <a href="/dashboard" class="back-link" id="back-to-dashboard">← Dashboard</a>
+        <a href="/dashboard" class="back-link">← Dashboard</a>
         <div class="page-title-group">
-          <h1 class="page-title">Discussions</h1>
-          <p class="page-subtitle">Share ideas, notes, and resources with your classmates</p>
+          <h1 class="page-title">Grades</h1>
+          <p class="page-subtitle">See scored work, grading progress, and teacher feedback for the current classroom</p>
         </div>
-      </div>
-      <div class="page-top-right">
-        <button class="primary-btn" id="add-note-btn">+ Add Note</button>
       </div>
     </div>
 
-    <!-- No classroom selected -->
     <div id="no-classroom-warning" class="empty-state">
       <div class="empty-state-icon">🏫</div>
       <h2>No Classroom Selected</h2>
-      <p>Please select a classroom from the header to view discussions.</p>
+      <p>Please select a classroom from the header to view grades.</p>
       <a href="/dashboard" class="primary-btn">Go to Dashboard</a>
     </div>
 
-    <!-- Discussion Notes Grid -->
-    <div class="padlet-grid" id="padlet-grid"></div>
-
-    <!-- Empty state -->
-    <div id="no-discussions-state" class="empty-state" style="display:none">
-      <div class="empty-state-icon">📝</div>
-      <h2>No Discussions Yet</h2>
-      <p>Be the first to share a note! Click "Add Note" to get started.</p>
-    </div>
-  </div>
-
-  <!-- Add Note Modal -->
-  <div class="modal-overlay" id="add-note-modal" style="display:none">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>📝 Add a Note</h3>
-        <button class="modal-close" id="add-note-modal-close">✕</button>
+    <div class="grades-summary-grid" id="grades-summary-grid" style="display:none">
+      <div class="stat-card">
+        <div class="stat-label">Recorded Grades</div>
+        <div class="stat-value" id="grades-recorded-count">0</div>
       </div>
-      <form class="modal-body" id="add-note-form">
-        <div class="form-group">
-          <label class="form-label" for="note-title">Title</label>
-          <input type="text" id="note-title" placeholder="Give your note a title..." class="form-input">
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="note-text">Content</label>
-          <textarea id="note-text" placeholder="Write your thoughts, ideas, or questions..." class="form-textarea" rows="5"></textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="note-image-url">Image URL <span class="optional-label">(optional)</span></label>
-          <input type="url" id="note-image-url" placeholder="https://example.com/image.jpg" class="form-input">
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="note-link-url">Link URL <span class="optional-label">(optional)</span></label>
-          <input type="url" id="note-link-url" placeholder="https://example.com/resource" class="form-input">
-        </div>
-        <button type="submit" class="create-btn" id="submit-note-btn">Post Note</button>
-      </form>
+      <div class="stat-card">
+        <div class="stat-label">Average Grade</div>
+        <div class="stat-value" id="grades-average-grade">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pending Review</div>
+        <div class="stat-value" id="grades-pending-count">0</div>
+      </div>
+    </div>
+
+    <div class="grades-board" id="grades-board"></div>
+
+    <div id="no-grades-state" class="empty-state" style="display:none">
+      <div class="empty-state-icon">📊</div>
+      <h2>No Grades Yet</h2>
+      <p>Grades will appear here after work has been submitted and reviewed.</p>
     </div>
   </div>
 
-  <!-- Modals: Create / Join Classroom -->
   <div class="modal-overlay" id="create-classroom-modal" style="display:none">
     <div class="modal-card">
       <div class="modal-header">
@@ -124,6 +100,7 @@
       </div>
     </div>
   </div>
+
   <div class="modal-overlay" id="join-classroom-modal" style="display:none">
     <div class="modal-card">
       <div class="modal-header">
@@ -137,6 +114,7 @@
       </div>
     </div>
   </div>
+
   <div class="modal-overlay" id="settings-modal" style="display:none">
     <div class="modal-card">
       <div class="modal-header">
@@ -154,23 +132,6 @@
       </div>
     </div>
   </div>
-
-  <!-- Discussion Note Card Template -->
-  <template id="discussion-card-template">
-    <div class="discussion-card" data-note-id="" data-accent-index="0">
-      <div class="note-accent-bar"></div>
-      <div class="note-content">
-        <h4 class="note-title"></h4>
-        <p class="note-text"></p>
-        <img src="" alt="Note image" class="note-image" style="display:none">
-        <a href="" target="_blank" rel="noopener noreferrer" class="note-link" style="display:none">🔗 View Resource</a>
-      </div>
-      <div class="note-footer">
-        <span class="note-author"></span>
-        <span class="note-date"></span>
-      </div>
-    </div>
-  </template>
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="../public/script.js"></script>

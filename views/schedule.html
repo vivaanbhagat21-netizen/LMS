@@ -4,13 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ORIGIN</title>
-  <meta name="description" content="ORIGIN Discussions — share ideas, notes, and resources with your classmates in a collaborative board.">
+  <meta name="description" content="ORIGIN classroom schedule — organize upcoming classes, due dates, study sessions, and meetings.">
   <link rel="stylesheet" href="../public/style.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body data-page="discussions">
+<body data-page="schedule">
 
-  <!-- HEADER -->
   <header class="main-header">
     <div class="header-left">
       <img src="../public/origin-logo.png" alt="ORIGIN" class="header-logo">
@@ -20,7 +19,7 @@
       <a href="/tutorials" class="nav-link" id="nav-tutorials">Handouts</a>
       <a href="/tasks" class="nav-link" id="nav-tasks">Assignments</a>
       <a href="/grades" class="nav-link" id="nav-discussions">Grades</a>
-      <a href="/schedule" class="nav-link" id="nav-schedule">Schedule</a>
+      <a href="/schedule" class="nav-link active" id="nav-schedule">Schedule</a>
     </nav>
     <div class="header-right">
       <button class="header-icon-btn" id="notif-btn" title="Notifications">
@@ -46,71 +45,74 @@
     </div>
   </header>
 
-  <!-- MAIN CONTENT -->
   <div class="page-container">
-    <!-- Page Header -->
     <div class="page-top-bar">
       <div class="page-top-left">
-        <a href="/dashboard" class="back-link" id="back-to-dashboard">← Dashboard</a>
+        <a href="/dashboard" class="back-link">← Dashboard</a>
         <div class="page-title-group">
-          <h1 class="page-title">Discussions</h1>
-          <p class="page-subtitle">Share ideas, notes, and resources with your classmates</p>
+          <h1 class="page-title">Schedule</h1>
+          <p class="page-subtitle">Track classes, study blocks, and classroom milestones in one place</p>
         </div>
       </div>
       <div class="page-top-right">
-        <button class="primary-btn" id="add-note-btn">+ Add Note</button>
+        <button class="primary-btn teacher-only" id="open-schedule-form-btn" style="display:none">+ Add Event</button>
       </div>
     </div>
 
-    <!-- No classroom selected -->
     <div id="no-classroom-warning" class="empty-state">
       <div class="empty-state-icon">🏫</div>
       <h2>No Classroom Selected</h2>
-      <p>Please select a classroom from the header to view discussions.</p>
+      <p>Please select a classroom from the header to view the schedule.</p>
       <a href="/dashboard" class="primary-btn">Go to Dashboard</a>
     </div>
 
-    <!-- Discussion Notes Grid -->
-    <div class="padlet-grid" id="padlet-grid"></div>
+    <div class="schedule-list" id="schedule-list"></div>
 
-    <!-- Empty state -->
-    <div id="no-discussions-state" class="empty-state" style="display:none">
-      <div class="empty-state-icon">📝</div>
-      <h2>No Discussions Yet</h2>
-      <p>Be the first to share a note! Click "Add Note" to get started.</p>
+    <div id="no-schedule-state" class="empty-state" style="display:none">
+      <div class="empty-state-icon">🗓️</div>
+      <h2>No Schedule Yet</h2>
+      <p>Add your first classroom event to start organizing the week.</p>
     </div>
   </div>
 
-  <!-- Add Note Modal -->
-  <div class="modal-overlay" id="add-note-modal" style="display:none">
-    <div class="modal-card">
+  <div class="modal-overlay" id="schedule-modal" style="display:none">
+    <div class="modal-card modal-card-lg">
       <div class="modal-header">
-        <h3>📝 Add a Note</h3>
-        <button class="modal-close" id="add-note-modal-close">✕</button>
+        <h3>🗓️ Add Schedule Event</h3>
+        <button class="modal-close" id="schedule-modal-close">✕</button>
       </div>
-      <form class="modal-body" id="add-note-form">
+      <form class="modal-body" id="schedule-form">
         <div class="form-group">
-          <label class="form-label" for="note-title">Title</label>
-          <input type="text" id="note-title" placeholder="Give your note a title..." class="form-input">
+          <label class="form-label" for="schedule-title">Title</label>
+          <input type="text" id="schedule-title" name="title" placeholder="e.g. Quiz Review Session" class="form-input" required>
         </div>
         <div class="form-group">
-          <label class="form-label" for="note-text">Content</label>
-          <textarea id="note-text" placeholder="Write your thoughts, ideas, or questions..." class="form-textarea" rows="5"></textarea>
+          <label class="form-label" for="schedule-description">Description <span class="optional-label">(optional)</span></label>
+          <textarea id="schedule-description" name="description" placeholder="What should students prepare for?" class="form-textarea" rows="4"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="schedule-date">Date</label>
+            <input type="date" id="schedule-date" name="event_date" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="schedule-start">Start Time <span class="optional-label">(optional)</span></label>
+            <input type="time" id="schedule-start" name="start_time" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="schedule-end">End Time <span class="optional-label">(optional)</span></label>
+            <input type="time" id="schedule-end" name="end_time" class="form-input">
+          </div>
         </div>
         <div class="form-group">
-          <label class="form-label" for="note-image-url">Image URL <span class="optional-label">(optional)</span></label>
-          <input type="url" id="note-image-url" placeholder="https://example.com/image.jpg" class="form-input">
+          <label class="form-label" for="schedule-location">Location <span class="optional-label">(optional)</span></label>
+          <input type="text" id="schedule-location" name="location" placeholder="Room 204 or Online" class="form-input">
         </div>
-        <div class="form-group">
-          <label class="form-label" for="note-link-url">Link URL <span class="optional-label">(optional)</span></label>
-          <input type="url" id="note-link-url" placeholder="https://example.com/resource" class="form-input">
-        </div>
-        <button type="submit" class="create-btn" id="submit-note-btn">Post Note</button>
+        <button type="submit" class="create-btn">Save Event</button>
       </form>
     </div>
   </div>
 
-  <!-- Modals: Create / Join Classroom -->
   <div class="modal-overlay" id="create-classroom-modal" style="display:none">
     <div class="modal-card">
       <div class="modal-header">
@@ -124,6 +126,7 @@
       </div>
     </div>
   </div>
+
   <div class="modal-overlay" id="join-classroom-modal" style="display:none">
     <div class="modal-card">
       <div class="modal-header">
@@ -137,6 +140,7 @@
       </div>
     </div>
   </div>
+
   <div class="modal-overlay" id="settings-modal" style="display:none">
     <div class="modal-card">
       <div class="modal-header">
@@ -154,23 +158,6 @@
       </div>
     </div>
   </div>
-
-  <!-- Discussion Note Card Template -->
-  <template id="discussion-card-template">
-    <div class="discussion-card" data-note-id="" data-accent-index="0">
-      <div class="note-accent-bar"></div>
-      <div class="note-content">
-        <h4 class="note-title"></h4>
-        <p class="note-text"></p>
-        <img src="" alt="Note image" class="note-image" style="display:none">
-        <a href="" target="_blank" rel="noopener noreferrer" class="note-link" style="display:none">🔗 View Resource</a>
-      </div>
-      <div class="note-footer">
-        <span class="note-author"></span>
-        <span class="note-date"></span>
-      </div>
-    </div>
-  </template>
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="../public/script.js"></script>

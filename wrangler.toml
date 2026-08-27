@@ -1,0 +1,8 @@
+name = "edugen"
+compatibility_date = "2026-08-27"
+pages_build_output_dir = "./client/dist"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "edugen-db"
+database_id = "6a747eb9-60cd-4dcd-8132-c5e88b1acb09"
